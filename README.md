@@ -4,7 +4,7 @@ Am experimental quasi-framework for dealing with object persistence in business 
 
 ## Goal
 
-To completely separate persistence operation from business logic.
+To completely separate persistence operations from business logic.
 
 ## Concepts
 
