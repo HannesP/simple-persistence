@@ -13,6 +13,15 @@ export interface MessageState extends EntityState {
   attachments: AttachmentState[];
 }
 
+type MessageEvent = {
+  type: 'ATTACHMENT_OPENED'
+  attachmentId: string,
+} | {
+  type: 'ATTACHMENT_REJECTED',
+  attachmentId: string,
+  reason: 'TOO_LARGE' | 'DUPLICATE';
+}
+
 export class Attachment extends Entity<AttachmentState> {
   static from(id: string, size: number, filename: string) {
     return new Attachment({
@@ -36,7 +45,7 @@ export class Attachment extends Entity<AttachmentState> {
   }
 }
 
-export class Message extends Entity<MessageState> {
+export class Message extends Entity<MessageState, MessageEvent> {
   static from(senderId: string, receiverId: string) {
     return new Message({
       senderId,
@@ -52,11 +61,19 @@ export class Message extends Entity<MessageState> {
   addAttachment(attachment: Attachment) {
     const ids = this.attachments.map(att => att.id);
     if (ids.indexOf(attachment.id) !== -1) {
-      return;
+      return this.recordEvent({
+        type: 'ATTACHMENT_REJECTED',
+        attachmentId: attachment.id,
+        reason: 'DUPLICATE'
+      });
     }
 
     if (attachment.size >= 1024 * 1024) {
-      return;
+      return this.recordEvent({
+        type: 'ATTACHMENT_REJECTED',
+        attachmentId: attachment.id,
+        reason: 'TOO_LARGE'
+      });
     }
 
     addEntity(this.state.attachments, attachment);
@@ -66,6 +83,10 @@ export class Message extends Entity<MessageState> {
     const attachment = this.attachments.find(att => att.id === id);
     if (attachment) {
       attachment.open();
+      this.recordEvent({
+        type: 'ATTACHMENT_OPENED',
+        attachmentId: id
+      });
     }
   }
 }

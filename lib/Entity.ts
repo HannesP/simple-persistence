@@ -4,8 +4,13 @@ export interface EntityState {
   id?: string;
 }
 
-export class Entity<StateT extends EntityState> {
+export interface EntityEvent {
+  type: string;
+}
+
+export class Entity<StateT extends EntityState, EventT = EntityEvent> {
   readonly initialState: StateT;
+  readonly events: EventT[] = [];
 
   constructor(readonly state: StateT) {
     this.initialState = clone(state);
@@ -17,6 +22,10 @@ export class Entity<StateT extends EntityState> {
 
   protected cloneState(state: StateT): StateT {
     return clone(state);
+  }
+
+  protected recordEvent(event: EventT) {
+    this.events.push(event);
   }
 }
 
