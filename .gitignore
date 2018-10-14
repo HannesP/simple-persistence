@@ -1,3 +1,5 @@
 node_modules
-*.js
+app/*.js
 lib/*.js
+index.js
+.DS_Store
