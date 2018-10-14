@@ -1,44 +1,10 @@
-import { Entity, EntityState, addEntity } from "./lib/Entity";
-import { Repository } from "./lib/Repository";
-import uuid from "uuid";
+import { InMemoryMessageRepository } from "./app/InMemoryMessageRepository";
+import { MessageRepository } from "./app/MessageRepository";
+import { Message, Attachment } from "./app/Message";
 
-abstract class MessageRepository extends Repository<Message> {}
+const messageRepository: MessageRepository = new InMemoryMessageRepository();
 
-class InMemoryMessageRepository extends MessageRepository {
-  private table: { [key: string]: MessageState } = {};
+const message = Message.from("Hannes", "Sofia");
+message.addAttachment(Attachment.from(23423, "image.png"));
+messageRepository.persist(message);
 
-  async fetchById(id: string) {
-    const state = this.table[id];
-    return state == null ? undefined : new Message(state);
-  }
-
-  async persist(message: Message) {
-    const id = message.id || uuid.v4();
-    this.table[id] = message.state;
-    return true;
-  }
-}
-
-interface AttachmentState extends EntityState {
-  size: number;
-  opened: boolean;
-  filename: string;
-}
-
-interface MessageState extends EntityState {
-  senderId: string;
-  receivedId: string;
-  attachments: AttachmentState[];
-}
-
-class Attachment extends Entity<AttachmentState> {}
-
-class Message extends Entity<MessageState> {
-  get attachments() {
-    return this.state.attachments.map(state => new Attachment(state));
-  }
-
-  addAttachment(attachment: Attachment) {
-    addEntity(this.state.attachments, attachment);
-  }
-}
