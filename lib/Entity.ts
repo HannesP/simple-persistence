@@ -15,3 +15,10 @@ export class Entity<StateT extends EntityState> {
     return clone(state);
   }
 }
+
+export function addEntity<StateT, EntityT extends Entity<StateT>>(
+  arr: StateT[],
+  entity: EntityT
+) {
+  arr.push(entity.state);
+}
