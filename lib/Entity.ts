@@ -1,4 +1,4 @@
-import * as clone from "clone";
+import clone from "clone";
 
 export interface EntityState {
   id?: string;
@@ -11,7 +11,11 @@ export class Entity<StateT extends EntityState> {
     this.initialState = clone(state);
   }
 
-  protected cloneState(state: StateT) {
+  get id(): string | undefined {
+    return this.state.id;
+  }
+
+  protected cloneState(state: StateT): StateT {
     return clone(state);
   }
 }
