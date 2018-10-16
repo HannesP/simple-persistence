@@ -12,7 +12,7 @@ export class InMemoryMessageRepository extends MessageRepository {
 
   async persist(message: Message) {
     const id = message.id || uuid.v4();
+    message.state.id = id;
     this.table[id] = message.state;
-    return id;
   }
 }
